@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>DataCenter</title>
+</head>
+<body>
+
+<div class="jumbotron jumbotron-fluid">
+    <div class="container">
+        <h1 class="display-4">XHR 请求管理</h1>
+        <p class="lead">1. 避免多次请求</p>
+        <p class="lead">2. 间隔时间更新数据</p>
+        <p class="lead">3. ...</p>
+    </div>
+</div>
+
+<div class="container blockquote">
+    <button id="onceBtn" type="button" class="btn btn-danger">多次点击，仅发送一次，数据不更新</button>
+    <!--<button id="intervalBtn" type="button" class="btn btn-primary">多次点击，仅发送一次，数据即可更新</button>-->
+    <button id="timeBtn" type="button" class="btn btn-success">10秒之后，更新数据</button>
+</div>
+
+<div class="container" id="result">
+
+</div>
+</body>
+</html>
