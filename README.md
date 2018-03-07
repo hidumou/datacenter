@@ -7,5 +7,5 @@ npm run satrt
 
 
 open console
-// 观察网络请求
+观察网络请求
 ```
