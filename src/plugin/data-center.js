@@ -104,7 +104,7 @@ const DataCenter = {
                     self.reset(key, paramKey);
                 },
                 error: function (jqXHR, statuObj, error) {
-                    self.reset();
+                    REQUEST_CACHE[key] && self.reset();
                 }
             };
             ajaxInstance.instance = $.ajax(options);
