@@ -141,13 +141,11 @@ const DataCenter = {
 
         let ins = REQUEST_CACHE[key].ajaxInstances[paramKey];
 
-        console.log(ins.callbacks.length);
-
         //第一次请求，并且未拿到数据
         if (ins.callbacks.length === 1 && null === ins.data) {
             this.request(key, paramKey);
         }
-        //请求数据未获取到时，再次请求，(防止多次点击)
+        // //请求数据未获取到时或再次请求，(防止多次点击)
         else if (1 < ins.callbacks.length) {
             this.request(key, paramKey);
         }
