@@ -14,15 +14,19 @@ import Service, {REQUEST_CACHE} from './plugin/data-center';
 
 let onceBtn = $('#onceBtn'), intervalBtn = $('#intervalBtn'), timeBtn = $('#timeBtn'), resultContainer = $('#result');
 
-window.resultContainer = resultContainer;
-
 //注册请求池
-Service.register({key: "GET_TOPICS", url: "/topics", type: 'get'});
-Service.register({key: "TEST_INTERVAL", url: "/topics", type: 'get', updateIntervalTime: 10});
+Service.register({key: "GET_TOPICS_ONLY", url: "/weather?city=西安", type: 'get',only:true});
+Service.register({key: "GET_TOPICS", url: "/weather?city=西安", type: 'get'});
+Service.register({key: "TEST_INTERVAL", url: "/weather?city=西安", type: 'get', updateIntervalTime: 3});
 
 
 //多次点击 触发一次请求
 onceBtn.click(() => {
+    resultContainer.empty();
+    Service.get('GET_TOPICS_ONLY', {}, (resq, old) => render(resq.data))
+});
+
+intervalBtn.click(()=>{
     resultContainer.empty();
     Service.get('GET_TOPICS', {}, (resq, old) => render(resq.data))
 });

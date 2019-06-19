@@ -8,7 +8,7 @@ export const REQUEST_CACHE = {}; //API请求池
 
 const DataCenter = {
 
-    api: "/api/v1",
+    api: "https://bird.ioliu.cn",
 
     register: function (setting) {
         this.validate(setting) && this.init(setting);
@@ -29,6 +29,7 @@ const DataCenter = {
             dataType: settings.dataType ? settings.dataType : "json",
             type: settings.type ? settings.type : "post",
             updateIntervalTime: updateIntervalTime > 0 ? settings.updateIntervalTime : 0,//更新数据 间隔时间 秒
+            only:settings.only || false, // 仅请求一次，之后不再请求
             ajaxInstances: {},//存储不同参数的请求实例 e.g. ?a=1  ?a=2&b=2
         };
 
@@ -46,6 +47,7 @@ const DataCenter = {
             instance: null,//Ajax实例
             data: null,
             oldData: null,
+
             isLoading: false,
             timestamp: this.timestamp(),//请求时间戳，便于后面进行时间间隔控制
             callbacks: [],//回调池,
@@ -120,42 +122,53 @@ const DataCenter = {
 
     //Ajax 实例状态重置
     reset: function (key, paramKey) {
-        let ins = REQUEST_CACHE[key].ajaxInstances[paramKey];
+        let config = REQUEST_CACHE[key];
+        let ins = config.ajaxInstances[paramKey];
 
         ins.timestamp = this.timestamp();
         ins.isLoading = false;
         ins.instance = null;
+        ins.callbacks = []
 
+        if(!config.only && config.updateIntervalTime === 0){
+            ins.data = null;
+            ins.oldData = null;
+        }
     },
 
     //数据分发
     dispatch: function (key, paramKey) {
         let ins = REQUEST_CACHE[key].ajaxInstances[paramKey];
-        while (ins.callbacks.length) {
-            ins.callbacks.shift()(ins.data, ins.oldData);
-        }
+        // while (ins.callbacks.length) {
+            ins.callbacks.length && ins.callbacks.shift()(ins.data, ins.oldData);
+        // }
     },
 
     get: function (key, params, callback) {
         let paramKey = this.gather(key, params, callback);
+        let config = REQUEST_CACHE[key];
+        let ins = config.ajaxInstances[paramKey];
 
-        let ins = REQUEST_CACHE[key].ajaxInstances[paramKey];
+        //未获取数据 或 再次请求，(防止多次点击)
+        if (1 < ins.callbacks.length) {
+            return
+        }
+
+        //超过指定时间后可以更新数据
+        if(null !== ins.data
+            && REQUEST_CACHE[key].updateIntervalTime > 0
+            && (this.timestamp() - ins.timestamp > config.updateIntervalTime * UPDATE_INTERVAL_TIME)){
+            this.request(key, paramKey);
+            return
+        }
 
         //第一次请求，并且未拿到数据
         if (ins.callbacks.length === 1 && null === ins.data) {
             this.request(key, paramKey);
+            return
         }
-        // //请求数据未获取到时或再次请求，(防止多次点击)
-        else if (1 < ins.callbacks.length) {
-            this.request(key, paramKey);
-        }
-        //超过指定时间后可以更新数据
-        else if (REQUEST_CACHE[key].updateIntervalTime > 0 && (this.timestamp() - ins.timestamp > REQUEST_CACHE[key].updateIntervalTime * UPDATE_INTERVAL_TIME)) {
-            this.request(key, paramKey);
-        }
-        else {
-            this.dispatch(key, paramKey);
-        }
+
+        this.dispatch(key, paramKey);
 
     },
 
